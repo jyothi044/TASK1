@@ -15,10 +15,3 @@ provider "neon" {
 data "neon_project" "existing_project" {
   id = "silent-wind-76204907"
 }
-
-# Create an endpoint for the existing branch
-resource "neon_endpoint" "branch_endpoint" {
-  project_id = data.neon_project.existing_project.id
-  branch_id  = "br-mute-fire-ae17to9b"  # <-- your existing branch ID
-  type       = "read_write"
-}
