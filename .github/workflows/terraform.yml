@@ -3,40 +3,36 @@ name: Terraform Deploy (Neon)
 on:
   push:
     branches:
-      - main   # only run when pushing to main
-  workflow_dispatch:  # allow manual trigger
+      - main
+  workflow_dispatch:
 
 jobs:
   terraform:
-    name: Terraform Apply
     runs-on: ubuntu-latest
-
     env:
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 
+    defaults:
+      run:
+        working-directory: terraform   # 👈 points to folder with .tf files
+
     steps:
-      # Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
 
-      # Init Terraform
       - name: Terraform Init
         run: terraform init
 
-      # Validate Terraform
       - name: Terraform Validate
         run: terraform validate
 
-      # Plan
       - name: Terraform Plan
         run: terraform plan -input=false
 
-      # Apply
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
