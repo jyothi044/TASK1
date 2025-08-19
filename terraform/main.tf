@@ -23,15 +23,9 @@ variable "create_new_branch" {
   default     = false
 }
 
-resource "neon_branch" "main_branch" {
-  project_id = data.neon_project.existing_project.id
-  name       = "main"
-}
-
-
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
-  branch_id  = neon_branch.main_branch.id
+  branch_id  = "main"   # use your existing branch name
   type       = "read_write"
 }
 
