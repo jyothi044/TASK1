@@ -1,43 +1,42 @@
-name: Terraform Deploy to Neon
+name: Terraform Deploy (Neon)
 
 on:
   push:
     branches:
-      - main
+      - main   # only run when pushing to main
+  workflow_dispatch:  # allow manual trigger
 
 jobs:
   terraform:
+    name: Terraform Apply
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform
+
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 
     steps:
+      # Checkout repo
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
+      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.4
+          terraform_version: 1.6.6
 
+      # Init Terraform
       - name: Terraform Init
         run: terraform init
-        env:
-          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 
+      # Validate Terraform
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Plan
       - name: Terraform Plan
-        run: |
-          terraform plan \
-            -var "db_username=${{ secrets.db_username }}" \
-            -var "db_password=${{ secrets.db_password }}"
-        env:
-          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: terraform plan -input=false
 
+      # Apply
       - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve \
-            -var "db_username=${{ secrets.db_username }}" \
-            -var "db_password=${{ secrets.db_password }}"
-        env:
-          NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+        run: terraform apply -auto-approve -input=false
