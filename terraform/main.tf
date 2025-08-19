@@ -13,22 +13,18 @@ provider "neon" {
 
 # Reference existing project by ID
 data "neon_project" "existing_project" {
-  id = "silent-wind-76204907"   # <-- replace with your real project_id
+  id = "silent-wind-76204907"  
 }
 
-resource "neon_branch" "default_branch" {
+# Create a branch (or use existing default branch)
+resource "neon_branch" "new_branch" {
   project_id = data.neon_project.existing_project.id
   name       = "main"
-
-  lifecycle {
-    ignore_errors = true
-  }
 }
-
 
 # Create an endpoint for the branch
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
-  branch_id  = neon_branch.default_branch.id
+  branch_id  = neon_branch.new_branch.id
   type       = "read_write"
 }
