@@ -1,3 +1,4 @@
+# Database variables
 variable "db_username" {
   description = "Database role username"
   type        = string

@@ -1,3 +1,4 @@
+# Outputs
 output "project_id" {
   value = data.neon_project.existing_project.id
 }
