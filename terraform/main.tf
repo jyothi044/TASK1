@@ -13,19 +13,12 @@ provider "neon" {
 
 # Reference existing project by ID
 data "neon_project" "existing_project" {
-  id = "TASK1"
+  id = "silent-wind-76204907"
 }
 
-# Variable to control branch creation
-variable "create_new_branch" {
-  description = "Whether to create a new branch or use existing main"
-  type        = bool
-  default     = false
-}
-
+# Create an endpoint for the existing branch
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
-  branch_id  = "main"   # use your existing branch name
+  branch_id  = "br-mute-fire-ae17to9b"  # <-- your existing branch ID
   type       = "read_write"
 }
-
