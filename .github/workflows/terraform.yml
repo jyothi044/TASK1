@@ -29,8 +29,7 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var "region_id=${{ vars.region_id }}" \
-            -var "db_username=${{ secrets.database_name }}" \
+            -var "db_username=${{ secrets.db_username }}" \
             -var "db_password=${{ secrets.db_password }}"
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
@@ -38,8 +37,7 @@ jobs:
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
-            -var "region_id=${{ vars.region_id }}" \
-            -var "db_username=${{ secrets.database_name }}" \
+            -var "db_username=${{ secrets.db_username }}" \
             -var "db_password=${{ secrets.db_password }}"
         env:
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
