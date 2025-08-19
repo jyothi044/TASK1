@@ -13,7 +13,7 @@ provider "neon" {
 
 # Reference existing project by ID
 data "neon_project" "existing_project" {
-  id = "silent-wind-76204907"
+  id = "TASK1"
 }
 
 # Variable to control branch creation
