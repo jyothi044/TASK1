@@ -33,6 +33,6 @@ resource "neon_branch" "maybe_new_branch" {
 # Create an endpoint for the branch (use existing main if branch not created)
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
-  branch_id  = var.create_new_branch ? neon_branch.maybe_new_branch[0].id : "main"
+  branch_id  = neon_branch.main_branch.id
   type       = "read_write"
 }
