@@ -18,9 +18,10 @@ data "neon_project" "existing_project" {
 
 # Create a branch (or use existing default branch)
 resource "neon_branch" "default_branch" {
-  project_id = data.neon_project.existing_project.id
-  name       = "development"
+  project_id  = neon_project.example.id
+  branch_name = "main"
 }
+
 
 # Create an endpoint for the branch
 resource "neon_endpoint" "branch_endpoint" {
