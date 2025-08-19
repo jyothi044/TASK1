@@ -16,15 +16,15 @@ data "neon_project" "existing_project" {
   id = "silent-wind-76204907"  
 }
 
-# Create a branch (or use existing default branch)
-resource "neon_branch" "new_branch" {
+# Reference existing default branch "main"
+data "neon_branch" "main_branch" {
   project_id = data.neon_project.existing_project.id
   name       = "main"
 }
 
-# Create an endpoint for the branch
+# Create an endpoint for the existing branch
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
-  branch_id  = neon_branch.new_branch.id
+  branch_id  = data.neon_branch.main_branch.id
   type       = "read_write"
 }
