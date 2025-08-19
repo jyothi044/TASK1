@@ -16,11 +16,15 @@ data "neon_project" "existing_project" {
   id = "silent-wind-76204907"   # <-- replace with your real project_id
 }
 
-# Create a branch (or use existing default branch)
 resource "neon_branch" "default_branch" {
   project_id = data.neon_project.existing_project.id
   name       = "main"
+
+  lifecycle {
+    ignore_errors = true
+  }
 }
+
 
 # Create an endpoint for the branch
 resource "neon_endpoint" "branch_endpoint" {
