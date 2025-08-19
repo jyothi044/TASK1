@@ -14,8 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: terraform   # 👈 points to folder with .tf files
-
+        working-directory: terraform  
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
