@@ -23,16 +23,15 @@ variable "create_new_branch" {
   default     = false
 }
 
-# Only create a branch if create_new_branch = true
-resource "neon_branch" "maybe_new_branch" {
-  count      = var.create_new_branch ? 1 : 0
+resource "neon_branch" "main_branch" {
   project_id = data.neon_project.existing_project.id
   name       = "main"
 }
 
-# Create an endpoint for the branch (use existing main if branch not created)
+
 resource "neon_endpoint" "branch_endpoint" {
   project_id = data.neon_project.existing_project.id
   branch_id  = neon_branch.main_branch.id
   type       = "read_write"
 }
+
