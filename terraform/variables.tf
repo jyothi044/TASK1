@@ -1,20 +1,20 @@
 variable "db_username" {
   description = "Postgres username"
   type        = string
-  default     = "api_user"
+  default     = "todo"
 }
 
 variable "db_password" {
   description = "Postgres password"
   type        = string
-  default     = "Ironma2004"
+  default     = "Hulk@24"
   sensitive   = true
 }
 
 variable "db_name" {
   description = "Database name"
   type        = string
-  default     = "fastapi_db"
+  default     = "Tododb"
 }
 
 variable "db_instance_class" {
