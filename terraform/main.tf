@@ -1,50 +1,50 @@
 
-# --- Use existing subnets ---
-data "aws_subnet" "subnet_a" {
-  id = "subnet-08e25c33826c63c6f" # fastapi-subnet-a
+
+# Get default VPC
+data "aws_vpc" "default" {
+  default = true
 }
 
-data "aws_subnet" "subnet_b" {
-  id = "subnet-0e89af54f58472c0f" # fastapi-subnet-b
-}
-
-# --- Use existing Security Group ---
-# Replace with the correct SG ID from your list
-data "aws_security_group" "postgres_sg" {
-  id = "sg-0a424524c1c3ed678"
-}
-
-# --- DB Subnet Group ---
-resource "aws_db_subnet_group" "postgres_subnet_group" {
-  name       = "fastapi-postgres-subnet-group"
-  subnet_ids = [
-    data.aws_subnet.subnet_a.id,
-    data.aws_subnet.subnet_b.id
-  ]
-
-  tags = {
-    Name = "fastapi-postgres-subnet-group"
+# Get default subnets of default VPC
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
   }
 }
 
-# --- RDS Instance ---
+# Default security group of default VPC
+data "aws_security_group" "default" {
+  vpc_id = data.aws_vpc.default.id
+  filter {
+    name   = "group-name"
+    values = ["default"]
+  }
+}
+
+# Subnet group for RDS
+resource "aws_db_subnet_group" "default" {
+  name       = "default-subnet-group"
+  subnet_ids = data.aws_subnets.default.ids
+
+  tags = {
+    Name = "default-subnet-group"
+  }
+}
+
+# RDS Postgres instance
 resource "aws_db_instance" "postgres" {
-  identifier             = "fastapi-postgres"
-  allocated_storage      = 20
-  engine                 = "postgres"
-  engine_version         = "16.3"
-  instance_class         = var.db_instance_class
-  username               = var.db_username
-  password               = var.db_password
-  db_name                = var.db_name
-  parameter_group_name   = "default.postgres16"
-  skip_final_snapshot    = true
-  publicly_accessible    = true
+  allocated_storage    = 20
+  engine               = "postgres"
+  engine_version       = "16.3"
+  instance_class       = var.db_instance_class
+  db_username             = var.db_username
+  db_password             = var.db_password
+  db_name              = var.db_name
+  parameter_group_name = "default.postgres15"
+  publicly_accessible  = true
+  skip_final_snapshot  = true
 
-  vpc_security_group_ids = [data.aws_security_group.postgres_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.postgres_subnet_group.name
-
-  tags = {
-    Name = "fastapi-postgres-db"
-  }
+  vpc_security_group_ids = [data.aws_security_group.default.id]
+  db_subnet_group_name   = aws_db_subnet_group.default.name
 }
