@@ -39,14 +39,13 @@ data "aws_subnets" "default" {
   }
 }
 
-# Create RDS PostgreSQL instance
 resource "aws_db_instance" "postgres" {
   identifier              = "fastapi-postgres"
   engine                  = "postgres"
   engine_version          = "15.3"
   instance_class          = var.db_instance_class
   allocated_storage       = 20
-  name                    = var.db_name
+  db_name                 = var.db_name   # ✅ Correct for PostgreSQL
   username                = var.db_username
   password                = var.db_password
   publicly_accessible     = true
@@ -55,3 +54,4 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name    = aws_db_subnet_group.default.name
   backup_retention_period = 7
 }
+
