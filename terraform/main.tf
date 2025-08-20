@@ -8,22 +8,21 @@ data "aws_security_group" "rds_sg" {
   id = "sg-053c9577e60545b6d"
 }
 
-# Public Subnet 1 (in eu-north-1b)
+
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = data.aws_vpc.selected.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "0.0.0.0/0"
   map_public_ip_on_launch = true
-  availability_zone       = "eu-north-1b"
+  availability_zone       = "eu-north-1d"
 
   tags = {
     Name = "fastapi-public-subnet-1"
   }
 }
 
-# Public Subnet 2 (in eu-north-1a for AZ coverage)
 resource "aws_subnet" "public_subnet_2" {
   vpc_id                  = data.aws_vpc.selected.id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "0.0.0.0/0"
   map_public_ip_on_launch = true
   availability_zone       = "eu-north-1c"
 
@@ -32,13 +31,12 @@ resource "aws_subnet" "public_subnet_2" {
   }
 }
 
-# Subnet group for RDS (include both subnets for AZ coverage)
 resource "aws_db_subnet_group" "public_subnet_group" {
-  name       = "public-subnet-group"
+  name       = "subnet"
   subnet_ids = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 
   tags = {
-    Name = "public-subnet-group"
+    Name = "subnet"
   }
 }
 
@@ -54,5 +52,5 @@ resource "aws_db_instance" "postgres" {
   publicly_accessible    = true
   skip_final_snapshot    = true
   vpc_security_group_ids = [data.aws_security_group.rds_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.public_subnet_group.name
+  db_subnet_group_name   = aws_db_subnet_group.subnet.name
 }

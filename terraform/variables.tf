@@ -1,20 +1,20 @@
 variable "db_username" {
   description = "Postgres username"
   type        = string
-  default     = "todo"
+  default     = "todofast"
 }
 
 variable "db_password" {
   description = "Postgres password"
   type        = string
-  default     = "Hulk24879"
+  default     = "Todoapi65736"
   sensitive   = true
 }
 
 variable "db_name" {
   description = "Database name"
   type        = string
-  default     = "Tododb"
+  default     = "Todobasicdb"
 }
 
 variable "db_instance_class" {
