@@ -8,7 +8,7 @@ data "aws_subnet" " fastapi-subnet-a" {
   id = "subnet-0cd446cde3db3966b"
 }
 
-data "aws_subnet" "fastapi-subne-b" {
+data "aws_subnet" "fastapi-subnet-b" {
   id = "subnet-00f4aac34f5638e38" 
 }
 
