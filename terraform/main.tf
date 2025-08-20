@@ -1,43 +1,29 @@
-# --- Get Default VPC ---
-data "aws_vpc" "default" {
-  default = true
+
+# --- Use existing subnets ---
+data "aws_subnet" "subnet_a" {
+  id = "subnet-08e25c33826c63c6f" # fastapi-subnet-a
 }
 
-# --- Get Default Subnets ---
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
+data "aws_subnet" "subnet_b" {
+  id = "subnet-0e89af54f58472c0f" # fastapi-subnet-b
 }
 
-# --- Security Group ---
-resource "aws_security_group" "postgres_sg" {
-  name        = "postgres-sg"
-  description = "Allow Postgres inbound traffic"
-  vpc_id      = data.aws_vpc.default.id
-
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # WARNING: open to all, for demo only
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# --- Use existing Security Group ---
+# Replace with the correct SG ID from your list
+data "aws_security_group" "postgres_sg" {
+  id = "sg-0a424524c1c3ed678"
 }
 
 # --- DB Subnet Group ---
-resource "aws_db_subnet_group" "default" {
-  name       = "postgres-subnet-group"
-  subnet_ids = data.aws_subnets.default.ids
+resource "aws_db_subnet_group" "postgres_subnet_group" {
+  name       = "fastapi-postgres-subnet-group"
+  subnet_ids = [
+    data.aws_subnet.subnet_a.id,
+    data.aws_subnet.subnet_b.id
+  ]
+
   tags = {
-    Name = "postgres-subnet-group"
+    Name = "fastapi-postgres-subnet-group"
   }
 }
 
@@ -47,13 +33,18 @@ resource "aws_db_instance" "postgres" {
   allocated_storage      = 20
   engine                 = "postgres"
   engine_version         = "16.3"
-  instance_class         = "db.t3.micro"
-  username               = "postgres"
-  password               = "password123"
+  instance_class         = var.db_instance_class
+  username               = var.db_username
+  password               = var.db_password
+  db_name                = var.db_name
   parameter_group_name   = "default.postgres16"
   skip_final_snapshot    = true
   publicly_accessible    = true
 
-  vpc_security_group_ids = [aws_security_group.postgres_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.default.name
+  vpc_security_group_ids = [data.aws_security_group.postgres_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.postgres_subnet_group.name
+
+  tags = {
+    Name = "fastapi-postgres-db"
+  }
 }
