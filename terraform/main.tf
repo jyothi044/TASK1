@@ -1,15 +1,77 @@
-# Create Security Group
+provider "aws" {
+  region = "eu-north-1"
+}
+
+# --- VPC ---
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "fastapi-vpc"
+  }
+}
+
+# --- Subnets ---
+resource "aws_subnet" "public_a" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "eu-north-1a"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "fastapi-subnet-a"
+  }
+}
+
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "eu-north-1b"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "fastapi-subnet-b"
+  }
+}
+
+# --- Internet Gateway ---
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "fastapi-igw"
+  }
+}
+
+# --- Route Table ---
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+}
+
+# --- Route Table Associations ---
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
+}
+
+# --- Security Group ---
 resource "aws_security_group" "postgres_sg" {
   name        = "postgres-sg"
-  description = "Allow Postgres access"
-  vpc_id      = data.aws_vpc.default.id
+  description = "Allow Postgres inbound traffic"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "Postgres port"
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # for testing only, restrict in prod
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -20,39 +82,28 @@ resource "aws_security_group" "postgres_sg" {
   }
 }
 
-# Data source for default VPC
-data "aws_vpc" "default" {
-  default = true
-}
-
-# Create Subnet group
+# --- DB Subnet Group ---
 resource "aws_db_subnet_group" "default" {
   name       = "postgres-subnet-group"
-  subnet_ids = data.aws_subnets.default.ids
-}
-
-# Data source for default subnets
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  tags = {
+    Name = "postgres-subnet-group"
   }
 }
 
+# --- RDS Instance ---
 resource "aws_db_instance" "postgres" {
-  identifier              = "fastapi-postgres"
-  engine                  = "postgres"
-  engine_version          = "16.3"   # ✅ Supported in AWS
-  instance_class          = var.db_instance_class
-  allocated_storage       = 20
-  db_name                 = var.db_name
-  username                = var.db_username
-  password                = var.db_password
-  publicly_accessible     = true
-  skip_final_snapshot     = true
-  vpc_security_group_ids  = [aws_security_group.postgres_sg.id]
-  db_subnet_group_name    = aws_db_subnet_group.default.name
-  backup_retention_period = 7
+  identifier             = "fastapi-postgres"
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "15.4"
+  instance_class         = "db.t3.micro"
+  username               = "postgres"
+  password               = "password123"
+  parameter_group_name   = "default.postgres15"
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+
+  vpc_security_group_ids = [aws_security_group.postgres_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.default.name
 }
-
-
