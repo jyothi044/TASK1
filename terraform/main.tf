@@ -38,8 +38,8 @@ resource "aws_db_instance" "postgres" {
   engine               = "postgres"
   engine_version       = "16.3"
   instance_class       = var.db_instance_class
-  db_username             = var.db_username
-  db_password             = var.db_password
+  username             = var.db_username
+  password             = var.db_password
   db_name              = var.db_name
   parameter_group_name = "default.postgres15"
   publicly_accessible  = true
