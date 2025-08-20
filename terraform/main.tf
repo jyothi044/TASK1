@@ -42,10 +42,10 @@ data "aws_subnets" "default" {
 resource "aws_db_instance" "postgres" {
   identifier              = "fastapi-postgres"
   engine                  = "postgres"
-  engine_version          = "15.3"
+  engine_version          = "16.3"   # ✅ Supported in AWS
   instance_class          = var.db_instance_class
   allocated_storage       = 20
-  db_name                 = var.db_name   # ✅ Correct for PostgreSQL
+  db_name                 = var.db_name
   username                = var.db_username
   password                = var.db_password
   publicly_accessible     = true
@@ -54,4 +54,5 @@ resource "aws_db_instance" "postgres" {
   db_subnet_group_name    = aws_db_subnet_group.default.name
   backup_retention_period = 7
 }
+
 
