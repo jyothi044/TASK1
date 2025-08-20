@@ -7,7 +7,7 @@ variable "db_username" {
 variable "db_password" {
   description = "Postgres password"
   type        = string
-  default     = "root"
+  default     = "Ironma2004"
   sensitive   = true
 }
 
