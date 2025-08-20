@@ -1,23 +1,38 @@
+
+# Use existing VPC
 data "aws_vpc" "selected" {
   id = "vpc-0170241f47915e239"
 }
 
+# Use existing Security Group (replace ID with yours)
+data "aws_security_group" "rds_sg" {
+  id = "sg-053c9577e60545b6d"
+}
 
-# Public Subnet
+# Public Subnet (new)
 resource "aws_subnet" "public_subnet" {
-  vpc_id                  = aws_vpc.fastapi_vpc.id
+  vpc_id                  = data.aws_vpc.selected.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "eu-north-1a" # pick any AZ
+  availability_zone       = "eu-north-1a"
 
   tags = {
     Name = "fastapi-public-subnet"
   }
 }
 
-# Route Table
+# Internet Gateway (new, since you need public access)
+resource "aws_internet_gateway" "igw" {
+  vpc_id = data.aws_vpc.selected.id
+
+  tags = {
+    Name = "fastapi-igw"
+  }
+}
+
+# Route Table (new)
 resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.fastapi_vpc.id
+  vpc_id = data.aws_vpc.selected.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -35,12 +50,7 @@ resource "aws_route_table_association" "public_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Reference existing security group (replace with actual security group ID)
-data "aws_security_group" "rds_sg" {
-  id = "sg-053c9577e60545b6d" # Replace with the actual GroupId for rds-security-group-new
-}
-
-# Subnet group (RDS requires one)
+# Subnet group for RDS
 resource "aws_db_subnet_group" "public_subnet_group" {
   name       = "public-subnet-group"
   subnet_ids = [aws_subnet.public_subnet.id]
@@ -50,17 +60,17 @@ resource "aws_db_subnet_group" "public_subnet_group" {
   }
 }
 
-# RDS Postgres instance
+# RDS PostgreSQL Instance
 resource "aws_db_instance" "postgres" {
-  allocated_storage    = 20
-  engine               = "postgres"
-  engine_version       = "16.3"
-  instance_class       = var.db_instance_class
-  username             = var.db_username
-  password             = var.db_password
-  db_name              = var.db_name
-  publicly_accessible  = true
-  skip_final_snapshot  = true
-  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "16.3"
+  instance_class         = var.db_instance_class
+  username               = var.db_username
+  password               = var.db_password
+  db_name                = var.db_name
+  publicly_accessible    = true
+  skip_final_snapshot    = true
+  vpc_security_group_ids = [data.aws_security_group.rds_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.public_subnet_group.name
 }
