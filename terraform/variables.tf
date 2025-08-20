@@ -1,19 +1,24 @@
-# Database variables
 variable "db_username" {
-  description = "Database role username"
+  description = "Postgres username"
   type        = string
-  default     = "neondb_owner"
+  default     = "user"
 }
 
 variable "db_password" {
-  description = "Database role password"
+  description = "Postgres password"
   type        = string
-  default     = "npg_pBe6mrRVuYK0"
+  default     = "root"
   sensitive   = true
 }
 
-variable "database_name" {
+variable "db_name" {
   description = "Database name"
   type        = string
-  default     = "neondb"
+  default     = "fastapi_db"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance type (free tier eligible)"
+  type        = string
+  default     = "db.t3.micro"
 }
