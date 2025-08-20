@@ -10,7 +10,7 @@ data "aws_security_group" "rds_sg" {
 
 # Use existing Internet Gateway (specific ID from screenshot)
 data "aws_internet_gateway" "existing_igw" {
-  id = "igw-08d5673bd0ea8f64"
+  id = "igw-08d5673bd0ea8f6e4"
 }
 
 # Public Subnet 1 (in eu-north-1b)
