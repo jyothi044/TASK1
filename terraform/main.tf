@@ -8,7 +8,6 @@ data "aws_security_group" "rds_sg" {
   id = "sg-053c9577e60545b6d"
 }
 
-
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = data.aws_vpc.selected.id
   cidr_block              = "0.0.0.0/0"
@@ -52,5 +51,5 @@ resource "aws_db_instance" "postgres" {
   publicly_accessible    = true
   skip_final_snapshot    = true
   vpc_security_group_ids = [data.aws_security_group.rds_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.subnet.name
+  db_subnet_group_name   = aws_db_subnet_group.public_subnet_group.name
 }
