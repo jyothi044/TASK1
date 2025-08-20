@@ -35,7 +35,6 @@ resource "aws_db_instance" "postgres" {
   username             = var.db_username
   password             = var.db_password
   db_name              = var.db_name
-  parameter_group_name = "default.postgres15"
   publicly_accessible  = true
   skip_final_snapshot  = true
   vpc_security_group_ids = [data.aws_security_group.rds_sg.id]
