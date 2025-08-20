@@ -1,29 +1,47 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Checkout repo
+      - name: Checkout
         uses: actions/checkout@v3
 
+      # Configure AWS credentials (from GitHub Secrets)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1   # or your region
+          aws-region: us-east-1   # 👈 change if you want another region
 
+      # Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.8  # or latest stable
 
+      # Terraform Init
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
+      # Terraform Validate
       - name: Terraform Validate
         run: terraform -chdir=terraform validate
 
+      # Terraform Plan
       - name: Terraform Plan
         run: terraform -chdir=terraform plan -out=tfplan
 
+      # Terraform Apply (auto approve)
       - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
         run: terraform -chdir=terraform apply -auto-approve tfplan
