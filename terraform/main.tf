@@ -1,13 +1,13 @@
 # Use the existing VPC
 data "aws_vpc" "selected" {
-  id = "vpc-0170241f47915e239" # Replace with your VPC ID
+  id = "vpc-0170241f47915e239"
 }
 
-# Create subnets for RDS
+# Create subnets for RDS with unique CIDR blocks
 resource "aws_subnet" "subnet_a" {
   vpc_id            = data.aws_vpc.selected.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "eu-north-1a" # Adjust based on your region
+  cidr_block        = "10.0.3.0/24" # Unique CIDR
+  availability_zone = "eu-north-1a"
   tags = {
     Name = "fastapi-subnet-a"
   }
@@ -15,8 +15,8 @@ resource "aws_subnet" "subnet_a" {
 
 resource "aws_subnet" "subnet_b" {
   vpc_id            = data.aws_vpc.selected.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "eu-north-1b" # Adjust based on your region
+  cidr_block        = "10.0.4.0/24" # Unique CIDR
+  availability_zone = "eu-north-1b"
   tags = {
     Name = "fastapi-subnet-b"
   }
@@ -52,14 +52,14 @@ resource "aws_db_instance" "postgres" {
   parameter_group_name = "default.postgres15"
   publicly_accessible  = true
   skip_final_snapshot  = true
-  vpc_security_group_ids = [data.aws_security_group.default.id]
+  vpc_security_group_ids = [data.aws_security_group.default.id] # Or use [aws_security_group.rds_sg.id] if created
   db_subnet_group_name   = aws_db_subnet_group.default.name
 }
 
-# Optional: Create a security group for RDS if default doesn't allow port 5432
+# Optional: Create a new security group with a unique name
 resource "aws_security_group" "rds_sg" {
   vpc_id = data.aws_vpc.selected.id
-  name   = "rds-security-group"
+  name   = "rds-security-group-new"
   description = "Security group for RDS"
   ingress {
     from_port   = 5432
@@ -68,6 +68,6 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"] # Restrict this for production
   }
   tags = {
-    Name = "rds-security-group"
+    Name = "rds-security-group-new"
   }
 }
