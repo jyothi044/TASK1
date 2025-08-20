@@ -30,7 +30,7 @@ resource "aws_subnet" "public_subnet_2" {
   }
 }
 
-resource "aws_db_subnet_group" "public_subnet_group" {
+resource "aws_db_subnet_group" "subnet_group" {
   name       = "subnet"
   subnet_ids = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 
@@ -51,5 +51,5 @@ resource "aws_db_instance" "postgres" {
   publicly_accessible    = true
   skip_final_snapshot    = true
   vpc_security_group_ids = [data.aws_security_group.rds_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.public_subnet_group.name
+  db_subnet_group_name   = aws_db_subnet_group.subnet_group.name
 }
