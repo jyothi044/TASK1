@@ -26,13 +26,14 @@ jobs:
           terraform_version: 1.6.6   # or latest stable
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform -chdir=terraform init
 
       - name: Terraform Validate
-        run: terraform validate
+        run: terraform -chdir=terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform -chdir=terraform plan -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve tfplan
+
