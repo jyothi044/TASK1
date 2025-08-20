@@ -4,11 +4,11 @@ data "aws_vpc" "selected" {
 }
 
 # Reference existing subnets (replace with actual subnet IDs)
-data "aws_subnet" " fastapi-subnet-a" {
+data "aws_subnet" "subnet_a" {
   id = "subnet-0cd446cde3db3966b"
 }
 
-data "aws_subnet" "fastapi-subnet-b" {
+data "aws_subnet" "subnet_b" {
   id = "subnet-00f4aac34f5638e38" 
 }
 
