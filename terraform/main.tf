@@ -31,7 +31,7 @@ resource "aws_security_group" "rds_sg" {
 
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = data.aws_vpc.selected.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.4.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-north-1a"
 
